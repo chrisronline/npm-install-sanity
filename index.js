@@ -10,9 +10,11 @@ const run = Promise.coroutine(
   function*() {
     // Setup our test environment - this involves copying from the source
     // into a temporary directory so we aren't affecting actual versions
+    console.log('Setting up sandbox...')
     const sandboxPath = yield setup()
     
     // Verify there is actually an issue with `npm install`
+    console.log('Verifying `npm install` issue...')
     const verifyResult = yield verify(sandboxPath)
     if (verifyResult === false) {
       yield rm(sandboxPath)
@@ -21,12 +23,14 @@ const run = Promise.coroutine(
     
     // Based on the error message from `npm install`, pick a list
     // of strategies to fix the error and then execute each strategy
+    console.log('Trying to fix...')
     const strategies = pickStrategies(verifyResult)
     for (let strategy of strategies) {
       yield strategy(sandboxPath)
     }
     
     // Check again if `npm install` works
+    console.log('Verifying the fixes...')
     const reVerifyResult = yield verify(sandboxPath)
     if (reVerifyResult === false) {
       yield rm(sandboxPath)
